@@ -1,0 +1,10 @@
+body {
+  color: rgba(var(--color-accent-current),1);
+  background-color: rgba(var(--color-base-current),1);
+  transition: color .3s ease-in-out, background-color .3s ease-in-out;
+
+  &.is-light {
+    --color-base-current: var(--color-base-light);
+    --color-accent-current:  var(--color-base-dark);
+  }
+}

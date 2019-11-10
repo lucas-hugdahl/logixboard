@@ -1,0 +1,91 @@
+ //SCSS map used for building responsive utility classes
+$breakpoints: (
+  'sm': 576px,
+  'md': 577px,
+  'lg': 769px,
+  'xl': 993px,
+  'xxl': 1200px
+);
+
+:root {
+    --breakpoint-xs: 0;
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+
+    --font-family: 'Roboto', sans-serif;
+    // --font-family: 'Source Sans Pro', sans-serif;;
+    --font-light: 300;
+    --font-regular: 400;
+    --font-bold: 700;
+    --font-size-h1: 36px;
+    --font-size-h2: 24px;
+    --font-size-h3: 18px;
+    --font-size-base: 16px;
+    --font-size-small: 14px;
+    --font-size-micro: 12px;
+    --spacer: var(--font-size-base);
+    --border-radius: 5px;
+    --grid-gap: 30px;
+
+
+    --color-base-dark: 20, 20, 20;
+    --color-base-light: 255, 255, 255;
+    --color-base-current: var(--color-base-dark);
+    --color-accent-current:  var(--color-base-light);
+    --current-shadow: rgba(0, 0, 0, 0.404);
+
+    --color-font-level-1: rgba(var(--color-accent-current), 0.5);
+    --color-font-level-2: rgba(var(--color-accent-current), 0.85);
+
+    --black: #141414;
+    --white: rgb(240, 240, 240);
+    --dark-gray: #2c2c2b;
+    --light-gray: #424242;
+    --green: #28c4ae;
+    --blue: #1c4698;
+
+    --success: #23bd23;
+    --warning: #f1a708;
+    --error: #e95b5b;
+    --alert: #20a7ee;
+
+    --color-text-primary: var(--white);
+    --color-text-inverted: var(--black);
+    --color-background: var(--black);
+    --color-card: var(--dark-gray);
+    --color-modal: var(--white);
+    --shadow: 0 0 5px 3px var(--current-shadow);
+
+    --z-1: 1;
+    --z-2: 100;
+    --z-3: 500;
+    --z-4: 900;
+    --z-5: 1000;
+
+    // --indigo: #5603ad;
+    // --purple: #8965e0;
+    // --pink: #f3a4b5;
+    // --red: #f5365c;
+    // --orange: #fb6340;
+    // --yellow: #ffd600;
+    // --teal: #11cdef;
+    // --cyan: #2bffc6;
+    // --gray: #6c757d;
+    // --gray-dark: #32325d;
+    // --light: #ced4da;
+    // --lighter: #e9ecef;
+    // --primary: #e14eca;
+    // --secondary: #f4f5f7;
+    // --success: #00f2c3;
+    // --info: #1d8cf8;
+    // --warning: #ff8d72;
+    // --danger: #fd5d93;
+    // --light: #adb5bd;
+    // --dark: rgb(33, 37, 41);
+    // --default: #344675;
+    // --white: #fff;
+    // --neutral: #fff;
+    // --darker: #000;
+}

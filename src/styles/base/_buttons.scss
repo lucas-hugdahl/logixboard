@@ -1,0 +1,42 @@
+.button {
+  background: transparent;
+  padding: calc(var(--spacer) * .75) calc(var(--spacer) * 1.3);
+  color: var(--color-font-level-2);
+  border-radius: var(--border-radius);
+  appearance: none;
+  transition: all .25s ease-in-out;
+  position: relative;
+  border-width: 0;
+  border-style: solid;
+  border-color: var(--color-font-level-2);
+  box-sizing: border-box;
+  outline: 0;
+
+  &--icon {
+    --size:  calc(var(--spacer) * 3);
+    padding: calc(var(--spacer) * .5);
+    width: var(--size);
+    height: var(--size);
+  }
+
+  &--nav {
+    padding: calc(var(--spacer) * .5);
+    svg {
+      height: 30px !important;
+    }
+  }
+
+  //squish down effect
+  &:active:hover {
+    transform: scale(.9);
+  }
+
+  &:active {
+    outline: 0;
+  }
+
+  &:hover {
+    opacity: .8;
+    cursor: pointer;
+  }
+}

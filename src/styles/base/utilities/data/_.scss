@@ -1,0 +1,12 @@
+// import maps
+@import "./padding";
+@import "./margin";
+@import "./sizing";
+@import "./colors";
+
+// state
+$data: ();
+$data: map-merge($data, $map-sizing);
+$data: map-merge($data, $map-padding);
+$data: map-merge($data, $map-margin);
+$data: map-merge($data, $map-colors);
