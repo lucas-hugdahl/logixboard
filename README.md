@@ -1,13 +1,13 @@
 # Logixboard Code Challenge
 
-Development: 
+### Development
 
 `npm install`
 
 `npm run dev`
 
 
-Build:
+### Build
 
 `npm run build`
 
