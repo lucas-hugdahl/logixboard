@@ -1,5 +1,3 @@
-![Svelte Logo](../.github/images/svelte.svg)
-
 # Logixboard Code Challenge
 
 Development: 
@@ -8,4 +6,7 @@ Development:
 
 `npm run dev`
 
+
+Build:
+`npm run build`
 
