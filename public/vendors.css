@@ -39,7 +39,7 @@
   --color-text-inverted: var(--black);
   --color-background: var(--black);
   --color-card: var(--dark-gray);
-  --color-modal: var(--white);
+  --color-modal-background: rgba(0, 0, 0, 0.815);
   --shadow: 0 0 5px 3px var(--current-shadow);
   --z-1: 1;
   --z-2: 100;
@@ -1981,6 +1981,9 @@ body, html {
   font-size: var(--font-size-micro) !important;
   font-weight: var(font-bold); }
 
+.t-error {
+  color: var(--error); }
+
 p, td, th, span, li, a, button {
   letter-spacing: .04em;
   font-size: var(--font-size-base); }
@@ -2066,6 +2069,11 @@ body {
     padding: calc(var(--spacer) * .5); }
     .button--nav svg {
       height: 30px !important; }
+  .button--box {
+    border-width: 1px; }
+  .button--green {
+    background: var(--success);
+    border-color: var(--success); }
   .button:active:hover {
     transform: scale(0.9); }
   .button:active {
@@ -2074,13 +2082,27 @@ body {
     opacity: .8;
     cursor: pointer; }
 
-.text-input {
+.text-input, .date-input, .select-input {
   border-width: 0 0 1px 0;
+  border-style: solid;
   padding: calc(var(--spacer) * .5);
   border-color: var(--color-font-level-2);
   appearance: none;
   background: none;
-  color: var(--color-font-level-2); }
+  color: var(--color-font-level-2);
+  display: inline-block;
+  box-sizing: border-box; }
+
+.date-input, .select-input {
+  border-width: 1px;
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacer) * .5);
+  height: 40px;
+  box-sizing: border-box; }
+
+.top-label {
+  display: block;
+  margin-bottom: calc(var(--spacer) * .5); }
 
 body, html {
   margin: 0 auto;

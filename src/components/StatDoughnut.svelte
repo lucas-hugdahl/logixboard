@@ -2,33 +2,42 @@
   import { onMount } from "svelte";
   import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
-  // eslint-disable-next-line
-  // import TweenLite from "gsap/TweenLite";
   import Chart from "chart.js";
-  export let value;
+  import { createEventDispatcher } from 'svelte';
+  const dispatch = createEventDispatcher();
+  export let range;
   export let color;
   export let label;
-  export let total;
   let animatedValue = {var: 0};
   let canvas;
-
-  console.log(total)
+  let chart = null;
 
   const progress = tweened(0, {
 		duration: 1500,
 		easing: cubicOut
   });
+
+  const handleClick = () => {
+    dispatch('clicked')
+  }
   
-  progress.set(value);
+  progress.set(range[0]);
+
+  $: {
+    if (chart) {
+      chart.update();
+    }
+    progress.set(range[0]);
+  }
 
   onMount(async  () => {
-    var myPieChart = new Chart(canvas, {
+    chart = new Chart(canvas, {
       type: "doughnut",
       data: {
         datasets: [
           {
             label: "# of Votes",
-            data: [value, total],
+            data: [range[0], range[1]],
             backgroundColor: [
               color,
               '#141414'
@@ -61,6 +70,10 @@
     grid-template-rows: 1fr;
   }
 
+  .stat-wrapper:hover {
+    cursor: pointer;
+  }
+
   .stat-value {
     font-size: 4rem;
   }
@@ -73,7 +86,7 @@
   }
 </style>
 
-<div class="stat-wrapper m-4">
+<div class="stat-wrapper button m-4 w-100" on:click="{handleClick}">
   <canvas bind:this={canvas} />
   <div class="details pl-5">
     <h1 class="stat-value t-light m-0">{$progress.toFixed()}</h1>

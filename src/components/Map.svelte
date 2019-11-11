@@ -1,122 +1,101 @@
 <script>
   import { onMount } from "svelte";
   import mapboxgl from "mapbox-gl";
-  import originsLatLng from "../data/geocodedOrigins";
-  import destinationsLatLng from "../data/geocodedDestinations";
+  import { getStatusColor } from "../utilities";
   export let shipments;
-  let modifiedShipments = [];
-
   let mapIsLoaded = false;
   let mapContainer;
-  const mapQuestToken = "tdol3vJL4lBh2pXefGnrTaAAT89WK13U";
+  let mapInstance = null;
+
   const mapBoxToken =
     "pk.eyJ1IjoibHVjYXNodWdkYWhsIiwiYSI6ImNrMnNmem05MjEwZ3IzY252czd6cDh0eTQifQ.1wQDoh9Hn1BeOQI-pN0IHw";
-  let mapQuestBaseURL = `http://www.mapquestapi.com/geocoding/v1/batch?key=${mapQuestToken}`;
 
-  // This takes too long. Saved the data to local files for the purpose of this demo.
-  const geocodeAllAddresses = () => {
-    return new Promise((resolve, reject) => {
-      let batchGeocodeOriginsURL = mapQuestBaseURL;
-      let batchGeocodeDestinationsURL = mapQuestBaseURL;
-      shipments.data.map((item, index) => {
-        batchGeocodeOriginsURL += `&location=${item.origin
-          .split(" ")
-          .join("+")}`;
-        batchGeocodeDestinationsURL += `&location=${item.destination
-          .split(" ")
-          .join("+")}`;
-        fetch(batchGeocodeOriginsURL)
-          .then(res => res.json())
-          .then(res => {
-            //originsLatLng = res;
-            return fetch(batchGeocodeDestinationsURL);
-          })
-          .then(res => res.json())
-          .then(res => {
-            //destinationsLatLng = res;
-            resolve();
-          });
-      });
-    });
-  };
+  $: {
+    if (mapIsLoaded) {
+      updateMapLayers(shipmentsList);
+    }
+  }
 
-  const addLatLngToData = () => {
+  const updateMapLayers = shipmentsList => {
+    console.log("MAP: update layers");
+
     shipments.data.map((item, index) => {
-      modifiedShipments.push({
-        ...item,
-        originLatLng: originsLatLng.results[index].locations[0].latLng,
-        destinationLatLng: destinationsLatLng.results[index].locations[0].latLng
-      });
-    });
-  };
+      let existingLayer = mapInstance.getLayer(item.shipment_id);
+      if (typeof existingLayer !== "undefined") {
+        // Remove map layer & source.
+        mapInstance
+          .removeLayer(item.shipment_id)
+          .removeSource(item.shipment_id);
+        mapInstance.off("click", item.shipment_id, handleMapClick);
+      }
 
-  const buildMapRoutesLayer = () => {
-    let mapFeatures = [];
-    addLatLngToData();
-    modifiedShipments.map((item, index) => {
-      mapFeatures.push({
-        type: "Feature",
-        properties: {
-          color: "#F7455D" // red
+      let newLayer = {
+        id: item.shipment_id,
+        type: "line",
+        source: {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: { client_name: item.client_name, status: item.status },
+            geometry: {
+              type: "LineString",
+              coordinates: [
+                [item.originLatLng.lng, item.originLatLng.lat],
+                [item.destinationLatLng.lng, item.destinationLatLng.lat]
+              ]
+            }
+          }
         },
-        geometry: {
-          type: "LineString",
-          coordinates: [
-            [item.originLatLng.lat, item.originLatLng.lng],
-            [item.destinationLatLng.lat, item.destinationLatLng.lng]
-          ]
+        layout: {
+          "line-join": "round",
+          "line-cap": "round"
+        },
+        paint: {
+          "line-color": getStatusColor(item.status),
+          "line-width": 4
         }
+      };
+      mapInstance.addLayer(newLayer);
+      mapInstance.on("click", item.shipment_id, handleMapClick);
+
+      // Change the cursor to a pointer when the mouse is over the states layer.
+      mapInstance.on("mouseenter", item.shipment_id, function() {
+        mapInstance.getCanvas().style.cursor = "pointer";
+      });
+
+      // Change it back to a pointer when it leaves.
+      mapInstance.on("mouseleave", item.shipment_id, function() {
+        mapInstance.getCanvas().style.cursor = "";
       });
     });
-    return mapFeatures;
   };
 
-  console.log(buildMapRoutesLayer());
+  const handleMapClick = e => {
+    let html = `
+      <div class="map-popup">
+        <p>${e.features[0].properties.client_name}</p>
+        <p style="color:${getStatusColor(e.features[0].properties.status)}">${e.features[0].properties.status}</p>
+      </div>
+    `;
+    new mapboxgl.Popup()
+      .setLngLat(e.lngLat)
+      .setHTML(html)
+      .addTo(mapInstance);
+  };
 
   const initMap = () => {
     mapboxgl.accessToken = mapBoxToken;
-
-    const map = new mapboxgl.Map({
+    mapInstance = new mapboxgl.Map({
       container: mapContainer,
       style: "mapbox://styles/mapbox/dark-v9",
       zoom: 2,
       center: [9.5375, 33.8869]
     });
 
-
-    map.on('load', function () {
+    mapInstance.on("load", function() {
       mapIsLoaded = true;
-      modifiedShipments.map((item, index) => {
-        map.addLayer({
-          id: `id-${index}`,
-          type: "line",
-          source: {
-            type: "geojson",
-            data: {
-              type: "Feature",
-              properties: {},
-              geometry: {
-                type: "LineString",
-                coordinates: [
-                  [item.originLatLng.lng, item.originLatLng.lat],
-                  [item.destinationLatLng.lng, item.destinationLatLng.lat]
-                ]
-              }
-            }
-          },
-          layout: {
-            "line-join": "round",
-            "line-cap": "round"
-          },
-          paint: {
-            "line-color": item.status == "Arrived" ?"#23bd23" :item.status == "In Transit" ?"#20a7ee" : item.status == "Roll-Over" || item.status == "Cancelled" || item.status == "Customs Hold" ? "#f1a708" : item.status == "TransportError" ? "#e95b5b" : "#888", 
-            "line-width": 5
-          }
-        });
-      });
-    })
-
-
+      updateMapLayers(shipments.data);
+    });
   };
 
   onMount(async () => {
@@ -128,6 +107,35 @@
   .map {
     height: 550px;
   }
+
+  :global(.mapboxgl-popup p, .mapboxgl-popup a) {
+    font-size: var(--font-size-micro) !important;
+  }
+
+  :global(.mapboxgl-popup) {
+    background: var(--color-card);
+    color: var(--color-font-level-2);
+    position: relative;
+    display: inline-block;
+    min-height: 30px;
+    text-align: center;
+    padding: calc(var(--spacer) * 1.5) var(--spacer);
+  }
+
+
+  :global(.mapboxgl-popup-close-button) {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    appearance: none;
+    color: white;
+    border-width: 0;
+    background: none;
+    font-size: 16px;
+  }
+  :global(.mapboxgl-popup-close-button:hover) {
+    cursor: pointer;
+  }
 </style>
 
 <div class="map" bind:this={mapContainer}>
@@ -135,3 +143,19 @@
     <img class="w-100 h-100" src="images/map-placeholder.png" />
   {/if}
 </div>
+
+<!-- <div
+  class="mapboxgl-popup mapboxgl-popup-anchor-bottom"
+  style="max-width: 240px; transform: translate(-50%, -100%) translate(291px,
+  442px);">
+  <div class="mapboxgl-popup-tip" />
+  <div class="mapboxgl-popup-content">
+    <button
+      class="mapboxgl-popup-close-button"
+      type="button"
+      aria-label="Close popup">
+      ×
+    </button>
+    Microsoft
+  </div>
+</div> -->

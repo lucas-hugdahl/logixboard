@@ -20,6 +20,10 @@ body,html {
   font-weight: var(font-bold);
 }
 
+.t-error {
+  color: var(--error);
+}
+
 p,td,th,span,li,a,button {
   letter-spacing: .04em;
   font-size: var(--font-size-base);

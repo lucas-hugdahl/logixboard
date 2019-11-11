@@ -1,5 +1,11 @@
 <script>
-  import Icon from "./Icon.svelte"
+  import { createEventDispatcher } from 'svelte';
+  const dispatch = createEventDispatcher();
+  import Icon from "./Icon.svelte";
+
+  const handleCreate = () => {
+    dispatch('create')
+  }
 </script>
 
 <style>
@@ -12,7 +18,7 @@
 <nav class="nav">
   <ul class="inline-list m-0 p-0 w-100 py-4">
     <li>
-      <button class="button button--nav w-100">
+      <button class="button button--nav w-100" on:click={()=>{alert('Just for looks. Click "Create Shipment"')}}>
         <Icon icon="home"/>
         <p class="t-micro m-0">Home</p>
       </button>
@@ -30,7 +36,7 @@
       </button>
     </li>
     <li class="mt-3">
-      <button class="button button--nav w-100">
+      <button class="button button--nav w-100" on:click={handleCreate}>
         <Icon icon="add"/>
         <p class="t-micro m-0">Create Shipment</p>
       </button>

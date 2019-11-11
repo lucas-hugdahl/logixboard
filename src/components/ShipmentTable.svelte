@@ -1,41 +1,43 @@
 <script>
 	import Icon from "../components/Icon.svelte";
+	import { convertToSafeName, getStatusColor } from "../utilities"
 	import { onMount } from "svelte"
 	export let shipments;
 	export let hideColumns = [];
-	
+	export let label = "Shipments";
+
+
 	//state
 	let filter = {
 		open: false,
 		columns: {},
 		search: ""
 	}
-
 	//methods
-	const convertToSafeName = input => input.split(" ").join("_").toLowerCase();
 	const filterTableData = () => {
 		let filteredData = [];
 		shipments.data.map((shipment) => {
 			//Only search active columns
 			Object.entries(shipment).map((item) => {
-				if (filter.columns[item[0]].active && item[1].includes(filter.search)) {
-					filteredData.push(shipment)
+				// Dont return a cell if the column isn't in the filter therefore it's just a data property, not a seachable column
+				if (typeof filter.columns[item[0]] !== "undefined") {
+					if (filter.columns[item[0]].active && item[1].includes(filter.search)) {
+						filteredData.push(shipment)
+					}
 				}
 			});
 		});	
 		return filteredData;
 	};
 
-	//make dictonary of the columns for filtering
-	shipments.columns.map((item) => {
-		console.log(item)
-		filter.columns[convertToSafeName(item)] = {
-			name: item,
-			active: hideColumns.indexOf(item)
+	//make copy of the columns used for filetering
+	Object.entries(shipments.columnDictionary).map((item) => {
+		filter.columns[item[0]] = {
+			name: item[1],
+			active: hideColumns.indexOf(item[1]) < 0 ? true : false
 		}
-	});
+	})
 
-	console.log(shipments)
 </script>
 
 <style>
@@ -106,25 +108,11 @@
 	.table-wrapper.active {
 		opacity: .7;
 	}
-
-	.arrived {
-		color: var(--success);
-	}
-
-	.transporterror, .cancelled {
-		color: var(--error);
-	}
-	.in_transit {
-		color: var(--alert);
-	}
-	.roll-over, .customs_hold, .cancelled {
-		color: var(--warning);
-	}
 </style>
 
-<div class="wrapper m-4">
+<div class="wrapper m-4" role="button">
 	<div class="nav">
-		<h2 class="m-0">Shipments</h2>
+		<h2 class="m-0">{label}</h2>
 		<div class="filter">
 			<button class="button button--icon filter-button" on:click={() => {filter.open = !filter.open}}>
 				<Icon icon={filter.open ? 'close' : 'settings'}/>
@@ -159,20 +147,23 @@
 				{#each (filter.search ? filterTableData() : shipments.data) as row, key}
 					<tr>
 						{#each Object.entries(row) as value, index}
-							{#if filter.columns[value[0]].active}
-								<!-- Custom formatting for certain cells -->
-								{#if value[0] == "mode"}
-									<td class="table-icon">
-										<Icon icon={value[1]} />
-									</td>
-								{:else if value[0] == "status"}
-									<td class={convertToSafeName(value[1])}>
-										<strong>{value[1]}</strong>
-									</td>
-								{:else}
-									<td>
-										{value[1]}
-									</td>
+							<!-- Custom formatting for certain cells -->
+							<!-- Dont render a cell if it's columns isn't in the filter therefore it's just a data property -->
+							{#if typeof filter.columns[value[0]] !== "undefined"}
+								{#if filter.columns[value[0]].active}
+									{#if value[0] == "mode"}
+										<td class="table-icon" data-col={value[0]}>
+											<Icon icon={value[1]} />
+										</td>
+									{:else if value[0] == "status"}
+										<td style={`color: ${getStatusColor(value[1])}`} data-col={value[0]}>
+											<strong>{value[1]}</strong>
+										</td>
+									{:else}
+										<td data-col={value[0]}>
+											{value[1]}
+										</td>
+									{/if}
 								{/if}
 							{/if}
 						{/each}

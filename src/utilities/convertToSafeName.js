@@ -1,0 +1,1 @@
+export default input => input.split(" ").join("_").trim()

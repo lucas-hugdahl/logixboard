@@ -26,6 +26,15 @@
     }
   }
 
+  &--box {
+    border-width: 1px;
+  }
+
+  &--green {
+    background: var(--success);
+    border-color: var(--success);
+  }
+
   //squish down effect
   &:active:hover {
     transform: scale(.9);
